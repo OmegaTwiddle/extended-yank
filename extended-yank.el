@@ -23,6 +23,12 @@ When nil (the default), conversion only happens in `latex-mode`."
   :type 'boolean
   :group 'extended-yank)
 
+(defcustom extended-yank-filter-html t
+  "When non-nil (the default), filter HTML using a Lua filter to clean it up.
+This removes elements like images and strips attributes from links and headers."
+  :type 'boolean
+  :group 'extended-yank)
+
 
 
 (defun extended-yank--fetch-macos-html ()
@@ -88,10 +94,12 @@ function Header(el) el.attr = pandoc.Attr(); return el end
               (insert html)
               (let* ((coding-system-for-write 'utf-8)
                      (extra-args (if (string= to-format "markdown") "--wrap=none" ""))
-                     (pandoc-cmd (format "pandoc -f html -t %s %s --lua-filter=%s"
+                     (pandoc-cmd (format "pandoc -f html -t %s %s %s"
                                          to-format
                                          extra-args
-                                         (shell-quote-argument lua-file))))
+                                         (if extended-yank-filter-html
+                                             (format "--lua-filter=%s" (shell-quote-argument lua-file))
+                                           ""))))
                 (shell-command-on-region (point-min) (point-max) pandoc-cmd nil t))
               (buffer-string)))
         (when (file-exists-p lua-file)
