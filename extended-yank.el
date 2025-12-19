@@ -98,44 +98,59 @@ function Header(el) el.attr = pandoc.Attr(); return el end
           (delete-file lua-file))))))
 
 
-(defun extended-yank-yank-html (html &optional _arg &rest _)
-  "Convert HTML to Org or paste raw HTML.
-If HTML is nil, try to fetch from clipboard."
-  (interactive (list nil current-prefix-arg))
+(defun extended-yank-yank-html-as-org (&optional html)
+  "Paste HTML from clipboard as Org-mode content.
+If HTML is provided, use it instead of fetching from clipboard."
+  (interactive)
   (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
-    (cond
-     ;; Case 1: No HTML found at all
-     ((not source-html)
-      (message "Extended-Yank: No HTML content found on clipboard."))
-     
-     ;; Case 2: Source is empty string
-     ((string-empty-p source-html)
-      (message "Extended-Yank: Clipboard HTML is empty."))
-     
-     ;; Case 3: Success - Process based on mode/settings
-     (t
-      (cond
-       ((or extended-yank-always-convert-to-org
-            (derived-mode-p 'org-mode))
-        (let ((result (extended-yank--run-pandoc source-html "org")))
-          (unless (string-empty-p result)
-            (insert result))))
-       
-       ((or extended-yank-always-convert-to-markdown
-            (derived-mode-p 'markdown-mode))
-        (let ((result (extended-yank--run-pandoc source-html "markdown")))
-          (unless (string-empty-p result)
-            (insert result))))
-       
-       ((or extended-yank-always-convert-to-latex
-            (derived-mode-p 'latex-mode))
-        (let ((result (extended-yank--run-pandoc source-html "latex")))
-          (unless (string-empty-p result)
-            (insert result))))
-       
-       (t
-        ;; Fallback: Insert raw HTML
-        (insert source-html)))))))
+    (when (and source-html (not (string-empty-p source-html)))
+      (let ((result (extended-yank--run-pandoc source-html "org")))
+        (unless (string-empty-p result)
+          (insert result))))))
+
+(defun extended-yank-yank-html-as-markdown (&optional html)
+  "Paste HTML from clipboard as Markdown content.
+If HTML is provided, use it instead of fetching from clipboard.
+Passes --wrap=none to pandoc for Markdown."
+  (interactive)
+  (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
+    (when (and source-html (not (string-empty-p source-html)))
+      (let ((result (extended-yank--run-pandoc source-html "markdown")))
+        (unless (string-empty-p result)
+          (insert result))))))
+
+(defun extended-yank-yank-html-as-latex (&optional html)
+  "Paste HTML from clipboard as LaTeX content.
+If HTML is provided, use it instead of fetching from clipboard."
+  (interactive)
+  (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
+    (when (and source-html (not (string-empty-p source-html)))
+      (let ((result (extended-yank--run-pandoc source-html "latex")))
+        (unless (string-empty-p result)
+          (insert result))))))
+
+(defun extended-yank-yank-html (html &optional _arg &rest _)
+  "Convert HTML to Org, Markdown or LaTeX based on context.
+If HTML is nil, the specific functions will fetch it."
+  (interactive (list nil current-prefix-arg))
+  (cond
+   ((or extended-yank-always-convert-to-org
+        (derived-mode-p 'org-mode))
+    (extended-yank-yank-html-as-org html))
+   
+   ((or extended-yank-always-convert-to-markdown
+        (derived-mode-p 'markdown-mode))
+    (extended-yank-yank-html-as-markdown html))
+   
+   ((or extended-yank-always-convert-to-latex
+        (derived-mode-p 'latex-mode))
+    (extended-yank-yank-html-as-latex html))
+   
+   (t
+    ;; Fallback: Insert raw HTML
+    (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
+      (when (and source-html (not (string-empty-p source-html)))
+        (insert source-html))))))
 
 
 (provide 'extended-yank)
