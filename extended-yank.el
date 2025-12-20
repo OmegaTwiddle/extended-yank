@@ -34,7 +34,7 @@ This removes elements like images and strips attributes from links and headers."
 (defun extended-yank--fetch-macos-html ()
   "Fetch and decode HTML from macOS clipboard using osascript and ruby."
   (let* ((osascript-cmd 
-          "osascript -e 'get the clipboard as «class HTML»' | sed 's/«data HTML//; s/»//' | xxd -r -p ")
+          "osascript -e 'get the clipboard as «class HTML»' 2>/dev/null | sed 's/«data HTML//; s/»//' | xxd -r -p ")
          (html-output (shell-command-to-string osascript-cmd)))
     (if (and html-output (not (string-empty-p html-output)))
         html-output
@@ -54,8 +54,8 @@ This removes elements like images and strips attributes from links and headers."
 (defun extended-yank--fetch-linux-html ()
   "Fetch HTML from Linux clipboard using xclip or wl-paste."
   (let ((cmd (cond
-              ((executable-find "wl-paste") "wl-paste -t text/html")
-              ((executable-find "xclip") "xclip -selection clipboard -t text/html -o")
+              ((executable-find "wl-paste") "wl-paste -t text/html 2>/dev/null")
+              ((executable-find "xclip") "xclip -selection clipboard -t text/html -o 2>/dev/null")
               (t nil))))
     (if cmd
         (let ((html-output (shell-command-to-string cmd)))
@@ -111,10 +111,11 @@ function Header(el) el.attr = pandoc.Attr(); return el end
 If HTML is provided, use it instead of fetching from clipboard."
   (interactive)
   (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
-    (when (and source-html (not (string-empty-p source-html)))
-      (let ((result (extended-yank--run-pandoc source-html "org")))
-        (unless (string-empty-p result)
-          (insert result))))))
+    (if (and source-html (not (string-empty-p source-html)))
+        (let ((result (extended-yank--run-pandoc source-html "org")))
+          (unless (string-empty-p result)
+            (insert result)))
+      (yank))))
 
 (defun extended-yank-yank-html-as-markdown (&optional html)
   "Paste HTML from clipboard as Markdown content.
@@ -122,20 +123,22 @@ If HTML is provided, use it instead of fetching from clipboard.
 Passes --wrap=none to pandoc for Markdown."
   (interactive)
   (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
-    (when (and source-html (not (string-empty-p source-html)))
-      (let ((result (extended-yank--run-pandoc source-html "markdown")))
-        (unless (string-empty-p result)
-          (insert result))))))
+    (if (and source-html (not (string-empty-p source-html)))
+        (let ((result (extended-yank--run-pandoc source-html "markdown")))
+          (unless (string-empty-p result)
+            (insert result)))
+      (yank))))
 
 (defun extended-yank-yank-html-as-latex (&optional html)
   "Paste HTML from clipboard as LaTeX content.
 If HTML is provided, use it instead of fetching from clipboard."
   (interactive)
   (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
-    (when (and source-html (not (string-empty-p source-html)))
-      (let ((result (extended-yank--run-pandoc source-html "latex")))
-        (unless (string-empty-p result)
-          (insert result))))))
+    (if (and source-html (not (string-empty-p source-html)))
+        (let ((result (extended-yank--run-pandoc source-html "latex")))
+          (unless (string-empty-p result)
+            (insert result)))
+      (yank))))
 
 (defun extended-yank-yank-html (html &optional _arg &rest _)
   "Convert HTML to Org, Markdown or LaTeX based on context.
@@ -156,9 +159,11 @@ If HTML is nil, the specific functions will fetch it."
    
    (t
     ;; Fallback: Insert raw HTML
+    ;; Fallback: Insert raw HTML
     (let ((source-html (or html (extended-yank--fetch-html-from-clipboard))))
-      (when (and source-html (not (string-empty-p source-html)))
-        (insert source-html))))))
+      (if (and source-html (not (string-empty-p source-html)))
+          (insert source-html)
+        (yank))))))
 
 
 (provide 'extended-yank)
