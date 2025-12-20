@@ -22,12 +22,20 @@ Alternatively, head to https://pandoc.org/installing.html#windows
 
 This package relies on shell calls to xclip or wl-paste and pandoc. To get pandoc, use your package manager. For example, on Ubuntu:
 
-`sudo apt-get install pandoc`
+For wayland:
+`sudo apt-get install pandoc wl-clipboard`
+
+For xorg:
+`sudo apt-get install pandoc xclip`
 
 
-If you use arch, btw, you can get it with:
+If you use arch, btw, you can get the depencies this way:
 
-`sudo pacman -S pandoc`
+For wayland:
+`sudo pacman -S pandoc wl-clipboard`
+
+For xorg:
+`sudo pacman -S pandoc xclip`
 
 ## Installation
 
@@ -38,6 +46,14 @@ git clone this directory into your emacs.d directory, then add the following to 
 (require 'extended-yank)
 ```
 
-## 
+## Usage
+
+If you like, you can bind `extended-yank-yank-html` to a key in your init file. For example:
+
+```elisp
+(global-set-key (kbd "C-c y") 'extended-yank-yank-html)
+```
+
+
 
 
