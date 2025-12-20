@@ -8,34 +8,34 @@ This emacs package provides the ability to read the rich format of the clipboard
 
 This package relies on shell calls to osascript and pandoc. osascript should be a native utility on your macOS device. To get pandoc:
 
-`brew install pandoc`
+```brew install pandoc```
 
 ### Windows
 
 This package relies on shell calls to powershell and pandoc. Powershell should be installed by default on your Windows device. To get pandoc:
 
-`choco install pandoc`
+```choco install pandoc```
 
-Alternatively, head to https://pandoc.org/installing.html#windows
+Alternatively, head to https://pandoc.org/installing.html#windows for other options.
 
 ### Linux
 
 This package relies on shell calls to xclip or wl-paste and pandoc. To get pandoc, use your package manager. For example, on Ubuntu:
 
 For wayland:
-`sudo apt-get install pandoc wl-clipboard`
+```sudo apt-get install pandoc wl-clipboard```
 
 For xorg:
-`sudo apt-get install pandoc xclip`
+```sudo apt-get install pandoc xclip```
 
 
 If you use arch, btw, you can get the depencies this way:
 
 For wayland:
-`sudo pacman -S pandoc wl-clipboard`
+```sudo pacman -S pandoc wl-clipboard```
 
 For xorg:
-`sudo pacman -S pandoc xclip`
+```sudo pacman -S pandoc xclip```
 
 ## Installation
 
