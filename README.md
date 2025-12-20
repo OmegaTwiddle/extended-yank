@@ -1,6 +1,6 @@
 # extended-yank
 
-This emacs package provides the ability to read the rich format of the clipboard so that users can paste more information into emacs. Inspired by [https://github.com/citrus-lemon/emacs-macos-clipboard](citrus-lemon/emacs-macos-clipboard)
+This emacs package provides the ability to read the rich format of the clipboard so that users can paste more information into emacs. Inspired by [citrus-lemon/emacs-macos-clipboard](https://github.com/citrus-lemon/emacs-macos-clipboard)
 
 ## Dependencies
 
